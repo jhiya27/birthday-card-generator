@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Necron Birthday Card Generator 🎉 | Create & Download Free Cards</title>
+
+<meta name="description" content="Create and download personalized birthday cards with photos, messages, and Instagram-ready designs using Necron Birthday Card Generator.">
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background:#f5f5f5;
+}
+
+.app{
+    max-width:420px;
+    margin:auto;
+    padding:20px;
+    text-align:center;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:8px;
+    background:#667eea;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button.secondary{
+    background:#25D366;
+}
+
+button:disabled{
+    opacity:0.6;
+}
+
+#card{
+    margin-top:20px;
+    padding:20px;
+    border-radius:15px;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    font-weight:bold;
+}
+
+#captionBox{
+    margin-top:15px;
+    background:#eee;
+    padding:10px;
+    border-radius:10px;
+    text-align:left;
+    font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<h2>🎉 Necron Birthday Card Generator 🎉</h2>
+<p>Create, download & share instantly 🎂</p>
+
+<input type="text" id="name" placeholder="Enter Name">
+<input type="number" id="age" placeholder="Enter Age">
+<input type="text" id="hobby" placeholder="Enter Hobby">
+
+<input type="file" id="photoInput" accept="image/*">
+
+<button onclick="generateMessage()">Generate Card</button>
+
+<div id="card">Your birthday card will appear here 🎂</div>
+
+<button id="downloadBtn" onclick="downloadCard()">Download Card</button>
+
+<button class="secondary" onclick="shareWhatsApp()">Share on WhatsApp</button>
+
+<div id="captionBox"></div>
+
+<button onclick="copyCaption()">Copy Caption</button>
+
+<div style="margin-top:30px; font-size:12px; color:#777;">
+    Made with ❤️ by <strong>Necron</strong>
+</div>
+
+</div>
+
+<!-- Hidden Instagram Card -->
+<div id="instaCard" style="
+width:1080px;
+height:1080px;
+padding:80px;
+position:absolute;
+top:-9999px;
+left:-9999px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+border-radius:40px;
+font-size:60px;
+font-weight:700;
+background: linear-gradient(135deg, #667eea, #764ba2);
+color:white;
+">
+
+<img id="userPhoto" style="
+width:220px;
+height:220px;
+border-radius:50%;
+margin-bottom:40px;
+display:none;
+border:6px solid white;
+">
+
+<div id="instaText"></div>
+
+<div style="position:absolute; bottom:40px; font-size:28px;">
+✨ Necron
+</div>
+
+</div>
+
+<script>
+
+function generateMessage(){
+    let name = document.getElementById("name").value.trim();
+    let age = document.getElementById("age").value.trim();
+    let hobby = document.getElementById("hobby").value.trim();
+
+    if(!name || !age || !hobby){
+        document.getElementById("card").innerText = "Please fill all fields 😅";
+        return;
+    }
+
+    let messages = [
+        `Hey ${name}! 🎉 At ${age}, you're not old… you're just premium! Enjoy ${hobby}!`,
+        `Happy ${age}, ${name}! 🎂 Keep rocking with ${hobby}!`,
+        `${name}, you're ${age} now 🔥 Time to celebrate with ${hobby}!`
+    ];
+
+    let msg = messages[Math.floor(Math.random()*messages.length)];
+
+    document.getElementById("card").innerText = msg;
+    document.getElementById("instaText").innerText = msg;
+
+    generateCaption(name, age, hobby);
+}
+
+document.getElementById("photoInput").addEventListener("change", function(e){
+    let file = e.target.files[0];
+    if(file){
+        let reader = new FileReader();
+        reader.onload = function(e){
+            let img = document.getElementById("userPhoto");
+            img.src = e.target.result;
+            img.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function generateCaption(name, age, hobby){
+    let caption = `Celebrating ${name}'s ${age}th birthday 🎉\n\n#Birthday #Party #${hobby}`;
+    document.getElementById("captionBox").innerText = caption;
+}
+
+function copyCaption(){
+    let text = document.getElementById("captionBox").innerText;
+    navigator.clipboard.writeText(text);
+    alert("Caption copied!");
+}
+
+function shareWhatsApp(){
+    let text = document.getElementById("instaText").innerText;
+    if(!text){
+        alert("Generate first 😅");
+        return;
+    }
+    window.open("https://wa.me/?text=" + encodeURIComponent(text));
+}
+
+async function downloadCard(){
+    let card = document.getElementById("instaCard");
+    let btn = document.getElementById("downloadBtn");
+
+    if(btn.disabled) return;
+
+    let text = document.getElementById("instaText").innerText;
+    if(!text){
+        alert("Generate first 😅");
+        return;
+    }
+
+    btn.innerText = "Generating...";
+    btn.disabled = true;
+
+    await new Promise(r => setTimeout(r, 150));
+
+    html2canvas(card, { scale:3, useCORS:true })
+    .then(canvas => {
+        canvas.toBlob(blob=>{
+            let url = URL.createObjectURL(blob);
+            let link = document.createElement("a");
+            link.href = url;
+            link.download = "birthday_card.png";
+            link.click();
+            setTimeout(()=>URL.revokeObjectURL(url),1000);
+        });
+
+        btn.innerText = "Download Card";
+        btn.disabled = false;
+    });
+}
+
+</script>
+
+</body>
+</html>
